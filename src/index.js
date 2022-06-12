@@ -33,30 +33,30 @@ export const startManager = async () => {
       list(currentFolder);
       getCurrentPath(currentFolder);
     }
-    if (chunkToString === "up") {
+    else if (chunkToString === "up") {
       goUp(currentFolder, userHomeFolder);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("cd")) {
+    else if (chunkToString.startsWith("cd")) {
       const pathToGoData = chunk.toString().split(" ");
       goTo(currentFolder, pathToGoData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("cut")) {
+    else if (chunkToString.startsWith("cut")) {
       let pathToFileData = decodeURIComponent(chunk.toString()).substring(4);
       read(currentFolder, pathToFileData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("add")) {
+    else if (chunkToString.startsWith("add")) {
       let newFileData = decodeURIComponent(chunk.toString()).substring(4);
       create(currentFolder, newFileData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("rn")) {
+    else if (chunkToString.startsWith("rn")) {
       let renameFileData = decodeURIComponent(chunk.toString()).substring(3);
       let oldFileData = renameFileData.split(" ")[0];
       let newFileData = renameFileData.split(" ")[1];
@@ -64,7 +64,7 @@ export const startManager = async () => {
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("mv")) {
+    else if (chunkToString.startsWith("mv")) {
       let renameFileData = decodeURIComponent(chunk.toString()).substring(3);
       let oldFileData = renameFileData.split(" ")[0];
       let newPath = renameFileData.split(" ")[1];
@@ -72,32 +72,34 @@ export const startManager = async () => {
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("rm")) {
+    else if (chunkToString.startsWith("rm")) {
       let deleteFileData = decodeURIComponent(chunk.toString()).substring(3);
       deleteFile(currentFolder, deleteFileData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("os --EOL")) {
+
+    else if (chunkToString.startsWith("os --EOL")) {
       osEol();
     }
-    if (chunkToString.startsWith("os --cpus")) {
+    else if (chunkToString.startsWith("os --cpus")) {
       osCpu();
     }
-    if (chunkToString.startsWith("os --homedir")) {
+    else if (chunkToString.startsWith("os --homedir")) {
       osHomedir();
     }
-    if (chunkToString.startsWith("os --architecture")) {
+    else if (chunkToString.startsWith("os --architecture")) {
       osArchitecture();
     }
 
-    if (chunkToString.startsWith("hash")) {
+    else if (chunkToString.startsWith("hash")) {
       let fileHashCalc = decodeURIComponent(chunk.toString()).substring(5);
       calculateHash(currentFolder, fileHashCalc);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("compress")) {
+
+    else if (chunkToString.startsWith("compress")) {
       let compressData = decodeURIComponent(chunk.toString()).substring(9);
       let sourceFile = compressData.split(" ")[0];
       let destinationFolder = compressData.split(" ")[1];
@@ -105,7 +107,7 @@ export const startManager = async () => {
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString.startsWith("decompress")) {
+    else if (chunkToString.startsWith("decompress")) {
       let decompressData = decodeURIComponent(chunk.toString()).substring(11);
       let sourceFile = decompressData.split(" ")[0];
       let destinationFolder = decompressData.split(" ")[1];
@@ -113,11 +115,14 @@ export const startManager = async () => {
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunkToString === ".exit") {
+    
+    else if (chunkToString === ".exit") {
       process.stdout.write(
         `Thank you for using File Manager, ${username}!${os.EOL}`
       );
       process.exit();
+    } else {
+      process.stdout.write(`Invalid input${os.EOL}`);
     }
   });
 
