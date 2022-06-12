@@ -1,5 +1,4 @@
-import { argv, stdin, stdout } from "node:process";
-import * as readline from "node:readline";
+import { argv } from "node:process";
 import os from "os";
 import { getCurrentPath } from "./helpers/getCurrentWorkingDirectory.js";
 import { list, goUp, goTo } from "./navigation/navigation.js";
@@ -11,6 +10,8 @@ import {
   moveFile,
 } from "./fileOperations/fileOperations.js";
 import { osEol, osCpu, osHomedir, osArchitecture } from "./osOperation.js";
+import { calculateHash } from "./hashOperation.js";
+import { compressBrotli, decompressBrotli } from "./compressOperations.js";
 
 export const startManager = async () => {
   let username;
@@ -25,109 +26,106 @@ export const startManager = async () => {
   process.stdout.write(`Welcome to the File Manager, ${username}!${os.EOL}`);
 
   getCurrentPath(currentFolder);
-  // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  // try {
+
   process.stdin.on("data", (chunk) => {
-    if (chunk.toString().trim() === "ls") {
-      // console.log("---------------------", chunk.toString());
+    let chunkToString = chunk.toString().trim();
+    if (chunkToString === "ls") {
       list(currentFolder);
       getCurrentPath(currentFolder);
     }
-    if (chunk.toString().trim() === "up") {
-      // console.log("---------------------", chunk.toString());
-      // console.log("currentFolder: ", currentFolder);
-      // console.log("userHomeFolder: ", userHomeFolder);
+    if (chunkToString === "up") {
       goUp(currentFolder, userHomeFolder);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunk.toString().startsWith("cd")) {
+    if (chunkToString.startsWith("cd")) {
       const pathToGoData = chunk.toString().split(" ");
-      // console.log(pathToGoData);
-      // console.log("currentFolder: ", currentFolder);
-      // console.log("userHomeFolder: ", userHomeFolder);
       goTo(currentFolder, pathToGoData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunk.toString().startsWith("cut")) {
+    if (chunkToString.startsWith("cut")) {
       let pathToFileData = decodeURIComponent(chunk.toString()).substring(4);
-      console.log(pathToFileData);
       read(currentFolder, pathToFileData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunk.toString().startsWith("add")) {
+    if (chunkToString.startsWith("add")) {
       let newFileData = decodeURIComponent(chunk.toString()).substring(4);
-      console.log(newFileData);
       create(currentFolder, newFileData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunk.toString().startsWith("rn")) {
+    if (chunkToString.startsWith("rn")) {
       let renameFileData = decodeURIComponent(chunk.toString()).substring(3);
       let oldFileData = renameFileData.split(" ")[0];
       let newFileData = renameFileData.split(" ")[1];
-      console.log(newFileData);
       rename(currentFolder, oldFileData, newFileData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunk.toString().startsWith("mv")) {
+    if (chunkToString.startsWith("mv")) {
       let renameFileData = decodeURIComponent(chunk.toString()).substring(3);
       let oldFileData = renameFileData.split(" ")[0];
       let newPath = renameFileData.split(" ")[1];
-      console.log(newPath);
       moveFile(currentFolder, oldFileData, newPath);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunk.toString().startsWith("rm")) {
+    if (chunkToString.startsWith("rm")) {
       let deleteFileData = decodeURIComponent(chunk.toString()).substring(3);
-      console.log(deleteFileData);
       deleteFile(currentFolder, deleteFileData);
       currentFolder = process.cwd();
       getCurrentPath(currentFolder);
     }
-    if (chunk.toString().startsWith("os --EOL")) {
+    if (chunkToString.startsWith("os --EOL")) {
       osEol();
     }
-    if (chunk.toString().startsWith("os --cpus")) {
+    if (chunkToString.startsWith("os --cpus")) {
       osCpu();
     }
-    if (chunk.toString().startsWith("os --homedir")) {
+    if (chunkToString.startsWith("os --homedir")) {
       osHomedir();
-    } 
-    if (chunk.toString().startsWith("os --architecture")) {
+    }
+    if (chunkToString.startsWith("os --architecture")) {
       osArchitecture();
-    } 
-  });
-  //   });
-  //   process.stdin.on('error', (err)=>{throw err})
-  // } catch (ex) {
-  //   console.log(ex)
-  //   console.error(ex.message);
-  // }
+    }
 
-  // ++++++++++++++++++++++++++++++++++++++
-  // console.log(process.cwd());
-
-  //   console.log(userHomeFolder);
-  //   console.log(process.env.USERPROFILE);
-  process.on("SIGINT", () => {
-    process.stdout.write(
-      `${os.EOL}Thank you for using File Manager, ${username}!${os.EOL}`
-    );
-    process.exit();
-  });
-  process.stdin.on("data", (chunk) => {
-    const chunkToString = chunk.toString().trim();
+    if (chunkToString.startsWith("hash")) {
+      let fileHashCalc = decodeURIComponent(chunk.toString()).substring(5);
+      calculateHash(currentFolder, fileHashCalc);
+      currentFolder = process.cwd();
+      getCurrentPath(currentFolder);
+    }
+    if (chunkToString.startsWith("compress")) {
+      let compressData = decodeURIComponent(chunk.toString()).substring(9);
+      let sourceFile = compressData.split(" ")[0];
+      let destinationFolder = compressData.split(" ")[1];
+      compressBrotli(currentFolder, sourceFile, destinationFolder);
+      currentFolder = process.cwd();
+      getCurrentPath(currentFolder);
+    }
+    if (chunkToString.startsWith("decompress")) {
+      let decompressData = decodeURIComponent(chunk.toString()).substring(11);
+      let sourceFile = decompressData.split(" ")[0];
+      let destinationFolder = decompressData.split(" ")[1];
+      decompressBrotli(currentFolder, sourceFile, destinationFolder);
+      currentFolder = process.cwd();
+      getCurrentPath(currentFolder);
+    }
     if (chunkToString === ".exit") {
       process.stdout.write(
         `Thank you for using File Manager, ${username}!${os.EOL}`
       );
       process.exit();
     }
+  });
+
+  process.on("SIGINT", () => {
+    process.stdout.write(
+      `${os.EOL}Thank you for using File Manager, ${username}!${os.EOL}`
+    );
+    process.exit();
   });
 };
 startManager();
