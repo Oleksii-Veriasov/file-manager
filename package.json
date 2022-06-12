@@ -1,0 +1,21 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "console file manager",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Oleksii-Veriasov/file-manager.git"
+  },
+  "author": "alx",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Oleksii-Veriasov/file-manager/issues"
+  },
+  "homepage": "https://github.com/Oleksii-Veriasov/file-manager#readme"
+}
